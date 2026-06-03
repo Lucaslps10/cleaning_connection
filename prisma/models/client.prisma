@@ -1,0 +1,13 @@
+model Client {
+  id String @id @default(uuid())
+  userId String @unique // Chave estrangeira que vincula ao usuário.
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name String
+  phone String?
+
+  // Relações
+  addresses Address[]          // Um cliente pode cadastrar vários endereços (Ex: Casa, Trabalho)
+  bookings  ServiceBooking[]   // Aqui guarda o histórico de agendamentos criados pelo cliente
+    
+}

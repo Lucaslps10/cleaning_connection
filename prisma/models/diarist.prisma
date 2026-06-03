@@ -1,0 +1,13 @@
+model Diarist {
+  id        String   @id @default(uuid())
+  userId    String   @unique              // Chave estrangeira que vincula ao Usuário
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  name      String                        
+  phone     String                        
+  bio       String?                       // Pequena apresentação profissional (opcional)
+  
+  // Relações
+  addresses Address[]                   // Endereço da diarista
+  bookings  ServiceBooking[]            // Histórico de agendamentos aceitos pela diarista
+}

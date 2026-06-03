@@ -1,0 +1,26 @@
+model ServiceBooking {
+  id          String         @id @default(uuid())
+  
+  // Chave estrangeira de quem está contratando
+  clientId    String
+  client      Client         @relation(fields: [clientId], references: [id])
+  
+  // Chave estrangeira de quem foi contratado
+  diaristId   String
+  diarist     Diarist        @relation(fields: [diaristId], references: [id])
+  
+  scheduledAt DateTime       // Data e hora em que a faxina vai acontecer
+  price       Float          // Valor cobrado pelo serviço
+  status      BookingStatus  @default(PENDING) // Estado atual do agendamento
+  
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+// Fluxo simplificado do status do agendamento
+enum BookingStatus {
+  PENDING      // Aguardando a diarista aceitar ou recusar
+  CONFIRMED    // Confirmado e agendado
+  COMPLETED    // Faxina realizada com sucesso
+  CANCELLED    // Serviço cancelado por uma das partes
+}

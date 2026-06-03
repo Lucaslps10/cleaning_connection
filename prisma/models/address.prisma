@@ -1,0 +1,21 @@
+model Address {
+  id           String   @id @default(uuid())
+  
+  // Chaves estrangeiras opcionais: o endereço pertence a um cliente OU a uma diarista
+  clientId     String?
+  client       Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  diaristId    String?
+  diarist      Diarist? @relation(fields: [diaristId], references: [id], onDelete: Cascade)
+
+  // Campos estruturados do endereço
+  street       String                        // Rua / Avenida
+  number       String                        // Número residencial ou "S/N"
+  complement   String?                       // Apartamento, Bloco, Casa fundos (opcional)
+  neighborhood String                        // Bairro
+  city         String                        // Cidade (Crucial para o seu filtro regional)
+  state        String                        // Estado (UF)
+  zipCode      String                        // CEP
+  
+  status       String   @default("ACTIVE") // Controla se o endereço está ativo ou foi "excluído"
+}
