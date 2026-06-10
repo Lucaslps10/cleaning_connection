@@ -1,11 +1,12 @@
-import pg from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '@prisma/client';
-import dotenv from 'dotenv';
+const pg = require('pg');
+const { PrismaPg } = require('@prisma/adapter-pg');
+// Busca o cliente da pasta customizada gerada na raiz
+const { PrismaClient } = require('../../generated/prisma');
+const dotenv = require('dotenv');
 
 dotenv.config();
 
-// Cria a piscina de conexões nativa do PostgreSQL (PostgreSQL client)
+// Cria a piscina de conexões nativa do PostgreSQL
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 
 // Passa o pool de conexões para o Adapter do Prisma
@@ -14,4 +15,5 @@ const adapter = new PrismaPg(pool);
 // Inicializa o Prisma Client utilizando o adapter configurado
 const prisma = new PrismaClient({ adapter });
 
-export { prisma };
+// Exporta no formato CommonJS
+module.exports = { prisma };

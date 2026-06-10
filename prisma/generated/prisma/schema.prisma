@@ -1,0 +1,109 @@
+model Address {
+  id String @id @default(uuid())
+
+  // Chaves estrangeiras opcionais: o endereço pertence a um cliente OU a uma diarista
+  clientId String?
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  diaristId String?
+  diarist   Diarist? @relation(fields: [diaristId], references: [id], onDelete: Cascade)
+
+  // Campos estruturados do endereço
+  street       String // Rua / Avenida
+  number       String // Número residencial ou "S/N"
+  complement   String? // Apartamento, Bloco, Casa fundos (opcional)
+  neighborhood String // Bairro
+  city         String // Cidade (Crucial para o seu filtro regional)
+  state        String // Estado (UF)
+  zipCode      String // CEP
+
+  status String @default("ACTIVE") // Controla se o endereço está ativo ou foi "excluído"
+}
+
+model Client {
+  id     String @id @default(uuid())
+  userId String @unique // Chave estrangeira que vincula ao usuário.
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name  String
+  phone String?
+
+  // Relações
+  addresses Address[] // Um cliente pode cadastrar vários endereços (Ex: Casa, Trabalho)
+  bookings  ServiceBooking[] // Aqui guarda o histórico de agendamentos criados pelo cliente
+}
+
+model Diarist {
+  id     String @id @default(uuid())
+  userId String @unique // Chave estrangeira que vincula ao Usuário
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name  String
+  phone String
+  bio   String? // Pequena apresentação profissional (opcional)
+
+  // Relações
+  addresses Address[] // Endereço da diarista
+  bookings  ServiceBooking[] // Histórico de agendamentos aceitos pela diarista
+}
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model ServiceBooking {
+  id String @id @default(uuid())
+
+  // Chave estrangeira de quem está contratando
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id])
+
+  // Chave estrangeira de quem foi contratado
+  diaristId String
+  diarist   Diarist @relation(fields: [diaristId], references: [id])
+
+  scheduledAt DateTime // Data e hora em que a faxina vai acontecer
+  price       Float // Valor cobrado pelo serviço
+  status      BookingStatus @default(PENDING) // Estado atual do agendamento
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Fluxo simplificado do status do agendamento
+enum BookingStatus {
+  PENDING // Aguardando a diarista aceitar ou recusar
+  CONFIRMED // Confirmado e agendado
+  COMPLETED // Faxina realizada com sucesso
+  CANCELLED // Serviço cancelado por uma das partes
+}
+
+enum UserType {
+  CLIENTE
+  DIARISTA
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique @db.VarChar(255)
+  password  String
+  userType  UserType @default(CLIENTE) @map("user_type")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Esse trecho faz com que um usuário tenha apenas um perfil de cliente ou diarista.
+  client  Client?
+  diarist Diarist?
+
+  @@map("users")
+}

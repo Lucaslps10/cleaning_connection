@@ -6,7 +6,7 @@ import { defineConfig } from "prisma/config";
 export default defineConfig({
   // instrui o Prisma a procurar o esquema dentro da pasta prisma 
   // e não dentro do arquivo schema.prisma
-  schema: "prisma",
+  schema: 'prisma/schema',
   migrations: {
     path: "prisma/migrations",
   },
